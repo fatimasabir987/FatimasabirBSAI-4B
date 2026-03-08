@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>AI Personality Reader</title>
+
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+background:#f2f2f2;
+}
+
+.container{
+margin-top:40px;
+}
+
+video{
+width:400px;
+border-radius:10px;
+}
+
+button{
+padding:10px 20px;
+margin-top:10px;
+font-size:16px;
+cursor:pointer;
+}
+
+.result{
+margin-top:20px;
+font-size:20px;
+color:green;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI Personality Reader</h1>
+
+<h3>Upload Image</h3>
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="file" name="image" required>
+<br><br>
+<button type="submit">Analyze</button>
+
+</form>
+
+
+<h3>OR Use Webcam</h3>
+
+<video id="video" autoplay></video>
+<br>
+<button onclick="captureImage()">Capture & Analyze</button>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<div class="result" id="result"></div>
+
+</div>
+
+
+<script>
+
+// Start Webcam
+navigator.mediaDevices.getUserMedia({video:true})
+.then(stream => {
+document.getElementById("video").srcObject = stream;
+});
+
+
+// Capture Image
+function captureImage(){
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+
+const ctx = canvas.getContext("2d");
+
+ctx.drawImage(video,0,0);
+
+const image = canvas.toDataURL("image/png");
+
+fetch("/capture",{
+
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+image:image
+})
+
+})
+
+.then(res=>res.json())
+.then(data=>{
+
+document.getElementById("result").innerHTML =
+"Personality: " + JSON.stringify(data);
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
