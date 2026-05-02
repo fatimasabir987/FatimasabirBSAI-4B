@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nest & Co. — Your Stay BFF</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --bg2: #f4ede3;
+    --card: #fffcf8;
+    --brown: #7c5c3e;
+    --brown-light: #a07850;
+    --brown-dim: rgba(124,92,62,0.1);
+    --brown-border: rgba(124,92,62,0.18);
+    --peach: #f0c8a8;
+    --sage: #8fa888;
+    --sage-light: #b5c9b0;
+    --text: #3a2e24;
+    --text-muted: #a08870;
+    --text-light: #c4aa94;
+    --user-bg: #fff0e5;
+    --bot-bg: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image:
+      radial-gradient(ellipse at 10% 10%, rgba(240,200,168,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 90%, rgba(143,168,136,0.22) 0%, transparent 50%);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .deco { position: fixed; pointer-events: none; opacity: 0.2; z-index: 0; }
+  .deco-1 { top: 6%; right: 5%; font-size: 52px; animation: floatDeco 9s ease-in-out infinite; }
+  .deco-2 { bottom: 12%; left: 4%; font-size: 44px; animation: floatDeco 11s ease-in-out infinite reverse; }
+  .deco-3 { top: 45%; right: 2%; font-size: 30px; animation: floatDeco 7s ease-in-out infinite 2s; }
+
+  @keyframes floatDeco {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-14px) rotate(6deg); }
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 22px 0 10px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .logo-blob {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--peach), var(--sage-light));
+    border-radius: 50% 40% 55% 35% / 40% 55% 45% 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    animation: blobWobble 6s ease-in-out infinite;
+    box-shadow: 0 4px 14px rgba(240,200,168,0.4);
+  }
+
+  @keyframes blobWobble {
+    0%,100% { border-radius: 50% 40% 55% 35% / 40% 55% 45% 60%; }
+    33% { border-radius: 40% 60% 35% 55% / 55% 35% 60% 40%; }
+    66% { border-radius: 60% 35% 50% 45% / 35% 60% 40% 55%; }
+  }
+
+  .hotel-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: var(--brown);
+    letter-spacing: 0.3px;
+  }
+
+  .tagline {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 300;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.73rem;
+    color: var(--sage);
+    font-weight: 500;
+    background: rgba(143,168,136,0.1);
+    border: 1px solid rgba(143,168,136,0.22);
+    padding: 4px 12px;
+    border-radius: 30px;
+    margin-top: 2px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+    animation: breathe 2.5s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.75); }
+  }
+
+  /* CHAT */
+  .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 2px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--peach) transparent;
+  }
+
+  .chat-window::-webkit-scrollbar { width: 3px; }
+  .chat-window::-webkit-scrollbar-thumb { background: var(--peach); border-radius: 4px; }
+
+  .date-chip {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 4px 0;
+  }
+  .date-chip::before,.date-chip::after {
+    content:'';flex:1;height:1px;
+    background: linear-gradient(90deg,transparent,var(--brown-border));
+  }
+  .date-chip::after { background:linear-gradient(90deg,var(--brown-border),transparent); }
+
+  .message { display:flex; gap:10px; animation:fadeUp 0.3s ease; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .message.user { flex-direction:row-reverse; }
+
+  .avatar {
+    width:34px;height:34px;
+    border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;margin-top:18px;
+  }
+
+  .bot .avatar {
+    background:linear-gradient(135deg,var(--peach),#f8e0cc);
+    border:1.5px solid rgba(240,200,168,0.5);
+  }
+
+  .user .avatar {
+    background:linear-gradient(135deg,var(--sage-light),#c8d9c4);
+    border:1.5px solid rgba(143,168,136,0.35);
+  }
+
+  .msg-content {
+    display:flex;flex-direction:column;gap:3px;
+    max-width:76%;
+  }
+  .message.user .msg-content { align-items:flex-end; }
+
+  .sender-name {
+    font-family:'Caveat',cursive;
+    font-size:0.85rem;
+    color:var(--text-muted);
+    padding:0 5px;
+    font-weight:500;
+  }
+
+  .thought-tag {
+    font-family:'Caveat',cursive;
+    font-size:0.78rem;
+    color:var(--sage);
+    padding:0 5px;
+    font-style:italic;
+  }
+
+  .bubble {
+    padding:11px 16px;
+    font-size:0.885rem;
+    line-height:1.68;
+    font-weight:400;
+  }
+
+  .bot .bubble {
+    background:var(--bot-bg);
+    border:1px solid var(--brown-border);
+    border-radius:4px 18px 18px 18px;
+    color:var(--text);
+    box-shadow:0 2px 14px rgba(124,92,62,0.08);
+  }
+
+  .user .bubble {
+    background:var(--user-bg);
+    border:1px solid rgba(240,200,168,0.45);
+    border-radius:18px 4px 18px 18px;
+    color:var(--brown);
+  }
+
+  /* TYPING */
+  .typing-indicator { display:none;gap:10px;align-items:flex-end;padding:0 2px; }
+  .typing-indicator.active { display:flex; }
+
+  .typing-avatar {
+    width:34px;height:34px;border-radius:50%;
+    background:linear-gradient(135deg,var(--peach),#f8e0cc);
+    border:1.5px solid rgba(240,200,168,0.5);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;flex-shrink:0;
+  }
+
+  .typing-bubble {
+    background:var(--bot-bg);
+    border:1px solid var(--brown-border);
+    border-radius:4px 18px 18px 18px;
+    padding:14px 18px;
+    display:flex;gap:5px;align-items:center;
+    box-shadow:0 2px 12px rgba(124,92,62,0.07);
+  }
+
+  .dot {
+    width:7px;height:7px;border-radius:50%;
+    animation:typingBounce 1.2s ease-in-out infinite;
+    background:var(--peach);
+  }
+  .dot:nth-child(2) { animation-delay:.15s;background:var(--brown-light); }
+  .dot:nth-child(3) { animation-delay:.3s;background:var(--sage-light); }
+
+  @keyframes typingBounce {
+    0%,60%,100% { transform:translateY(0);opacity:.45; }
+    30% { transform:translateY(-5px);opacity:1; }
+  }
+
+  /* QUICK PROMPTS */
+  .quick-prompts {
+    display:flex;gap:7px;flex-wrap:wrap;
+    margin-bottom:8px;padding:0 2px;
+  }
+
+  .qbtn {
+    font-family:'DM Sans',sans-serif;
+    font-size:0.76rem;font-weight:400;
+    padding:6px 13px;border-radius:30px;
+    border:1.5px solid var(--brown-border);
+    background:var(--card);color:var(--brown);
+    cursor:pointer;transition:all 0.2s ease;
+    box-shadow:0 1px 5px rgba(124,92,62,0.06);
+  }
+
+  .qbtn:hover {
+    background:var(--user-bg);
+    border-color:var(--brown-light);
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(124,92,62,0.1);
+  }
+
+  /* INPUT */
+  .input-area { padding:8px 0 22px;flex-shrink:0; }
+
+  .input-box {
+    display:flex;align-items:flex-end;
+    background:var(--card);
+    border:1.5px solid var(--brown-border);
+    border-radius:22px;
+    transition:border-color .2s,box-shadow .2s;
+    box-shadow:0 2px 18px rgba(124,92,62,0.1);
+    padding:7px 7px 7px 18px;gap:6px;
+  }
+
+  .input-box:focus-within {
+    border-color:var(--brown-light);
+    box-shadow:0 4px 22px rgba(124,92,62,0.16);
+  }
+
+  #userInput {
+    flex:1;border:none;outline:none;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.9rem;font-weight:400;
+    color:var(--text);background:transparent;
+    resize:none;max-height:110px;
+    line-height:1.5;padding:6px 0;
+  }
+
+  #userInput::placeholder { color:var(--text-light); }
+
+  #sendBtn {
+    width:38px;height:38px;border:none;
+    background:linear-gradient(135deg,var(--brown),var(--brown-light));
+    color:#fff8f0;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;transition:all .2s;flex-shrink:0;
+  }
+
+  #sendBtn:hover { transform:scale(1.08);box-shadow:0 4px 14px rgba(124,92,62,0.3); }
+  #sendBtn:disabled { opacity:.3;cursor:not-allowed;transform:none; }
+
+  .input-hint {
+    text-align:center;margin-top:7px;
+    font-family:'Caveat',cursive;
+    font-size:0.82rem;color:var(--text-light);
+    font-style:italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="deco deco-1">🌿</div>
+<div class="deco deco-2">☕</div>
+<div class="deco deco-3">🕯️</div>
+
+<div class="wrapper">
+  <header>
+    <div class="header-top">
+      <div class="logo-blob">🏡</div>
+      <div class="hotel-name">Nest & Co.</div>
+    </div>
+    <div class="tagline">your home away from home</div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      Cleo is online ✨
+    </div>
+  </header>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="date-chip">today</div>
+  </div>
+
+  <div class="typing-indicator" id="typingIndicator">
+    <div class="typing-avatar">🌸</div>
+    <div class="typing-bubble">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="quick-prompts" id="quickPrompts">
+      <button class="qbtn" onclick="quickSend('what rooms do you have?')">🛏 rooms</button>
+      <button class="qbtn" onclick="quickSend('what are the prices?')">💸 pricing</button>
+      <button class="qbtn" onclick="quickSend('what amenities are available?')">✨ vibes & amenities</button>
+      <button class="qbtn" onclick="quickSend('how do I book a room?')">📅 booking</button>
+      <button class="qbtn" onclick="quickSend('check-in and check-out times?')">🕐 timings</button>
+      <button class="qbtn" onclick="quickSend('do you allow pets?')">🐾 pets</button>
+    </div>
+    <div class="input-box">
+      <textarea id="userInput" placeholder="ask me anything, no pressure 🤍" rows="1"></textarea>
+      <button id="sendBtn" onclick="sendMessage()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">shift + enter for new line 🌙</div>
+  </div>
+</div>
+
+<script>
+  let history = [];
+  const chatWindow = document.getElementById('chatWindow');
+  const userInput  = document.getElementById('userInput');
+  const sendBtn    = document.getElementById('sendBtn');
+  const typing     = document.getElementById('typingIndicator');
+
+  const thoughts = [
+    "thinking... ☁️",
+    "hmm let me check 🌿",
+    "oh good one! ✨",
+    "ofc! here you go —",
+    "already on it 🫶",
+    "great question btw —",
+    "noted! so —",
+  ];
+  let tIdx = 0;
+
+  userInput.addEventListener('input', () => {
+    userInput.style.height = 'auto';
+    userInput.style.height = Math.min(userInput.scrollHeight, 110) + 'px';
+  });
+
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  function addMessage(role, text, showThought = false) {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+
+    const isBot = role === 'bot';
+    const avatar = isBot ? '🌸' : '🌱';
+    const name   = isBot ? 'Cleo' : 'You';
+
+    let thoughtHTML = '';
+    if (isBot && showThought) {
+      thoughtHTML = `<span class="thought-tag">${thoughts[tIdx++ % thoughts.length]}</span>`;
+    }
+
+    div.innerHTML = `
+      <div class="avatar ${role}">${avatar}</div>
+      <div class="msg-content">
+        <span class="sender-name">${name}</span>
+        ${thoughtHTML}
+        <div class="bubble">${text.replace(/\n/g, '<br>')}</div>
+      </div>
+    `;
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function quickSend(text) {
+    userInput.value = text;
+    sendMessage();
+  }
+
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    document.getElementById('quickPrompts').style.display = 'none';
+    addMessage('user', text, false);
+    history.push({ role: 'user', content: text });
+
+    userInput.value = '';
+    userInput.style.height = 'auto';
+    sendBtn.disabled = true;
+    typing.classList.add('active');
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    try {
+      const res  = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+      const data = await res.json();
+      typing.classList.remove('active');
+      addMessage('bot', data.response, true);
+      history.push({ role: 'assistant', content: data.response });
+    } catch {
+      typing.classList.remove('active');
+      addMessage('bot', "oh no, something glitched 😅 try again?", false);
+    }
+
+    sendBtn.disabled = false;
+    userInput.focus();
+  }
+
+  window.onload = () => {
+    setTimeout(() => {
+      const greet = `hey hey! welcome to Nest & Co. 🏡\n\nI'm Cleo, your go-to for everything stay-related ✨ rooms, prices, spa days, late checkouts — literally just ask.\n\nwhat can I help you with today? 🤍`;
+      addMessage('bot', greet, false);
+      history.push({ role: 'assistant', content: greet });
+    }, 600);
+  };
+</script>
+</body>
+</html>
